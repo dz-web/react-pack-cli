@@ -1,0 +1,18 @@
+import React, { Component, PropTypes } from 'react';
+<% if(router) {%>import { Link } from 'react-router';<%}%>
+<% if(cssm) {%>import cssModules from 'react-css-modules';
+import styles from './about.scss';
+
+@cssModules(styles, { allowMultiple: true, errorWhenNotFound: false })<%}%>
+export default class About extends Component {
+
+  render() {
+    return (
+      <div>
+        <div <% if(cssm) {%>styleName="about"<%}%>>Hello from about!</div>
+          <% if(router) {%><Link to='/'>back to index</Link><%}%>
+      </div>
+    );
+  }
+}
+

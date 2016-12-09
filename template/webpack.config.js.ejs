@@ -1,0 +1,11 @@
+// "use strict";
+
+const cfg = require('./dev.config');
+
+const opt = {
+  isRouter: <%=router%>,
+  isIE8: <%=ie8%>,
+  isPrd: process.env.NODE_ENV === 'production',
+};
+
+module.exports = cfg(opt);

@@ -1,0 +1,18 @@
+import React, { Component, PropTypes } from 'react';
+<% if(router) {%>import { Link } from 'react-router';<%}%>
+<% if(cssm) {%>import cssModules from 'react-css-modules';
+import styles from './user.scss';
+
+@cssModules(styles, { allowMultiple: true, errorWhenNotFound: false })<%}%>
+export default class User extends Component {
+
+  render() {
+    return (
+      <div>
+        <div <% if(cssm) {%>styleName="user"<%}%>>Hello, I'm a User!</div>
+          <% if(router) {%><Link to='/'>back to index</Link><%}%>
+      </div>
+    );
+  }
+}
+
