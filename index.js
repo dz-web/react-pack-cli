@@ -42,34 +42,34 @@ class Main {
     const opt = {
       'e': {
         alias: 'ie8',
-        describe: 'Support IE8+ browser.',
+        describe: 'Support IE8+ browser',
       },
       'x': {
         alias: 'redux',
-        describe: 'Use redux.',
+        describe: 'Use redux',
       },
       'o': {
         alias: 'router',
-        describe: 'Use react-router.',
+        describe: 'Use react-router',
       },
       'c': {
         alias: 'cssm',
-        describe: 'Use react css moudules.',
+        describe: 'Use react css moudules',
       },
       'n': {
         alias: 'name',
-        describe: 'Project name.',
+        describe: 'Project name',
       },
       't': {
         alias: 'testing',
-        describe: 'Is need testing.',
+        describe: 'Is need testing',
       },
       'y': {
         describe: 'Force to confirm',
       },
       'i': {
         alias: 'install',
-        describe: 'Install all dependencies.',
+        describe: 'Install all dependencies',
       },
       'v': {
         describe: 'Show verbose log',
@@ -86,7 +86,7 @@ class Main {
     if (this.argv._.length > 0) {
       this.handlPathCreate();
     } else {
-      this.showInfo();
+      this.showAppInfo();
     }
   }
 
@@ -96,7 +96,8 @@ class Main {
       ofs.accessSync(destPath()); // 是否能访问目的路径
 
       if (this.argv.y) {
-        this.showInfo();
+        this.showAppInfo();
+        return;
       }
 
       inquirer.prompt({
@@ -107,7 +108,7 @@ class Main {
       }).then((p) => {
         if (p.isOk) {
           // 如果确定覆盖,继续创建
-          this.showInfo();
+          this.showAppInfo();
         } else {
           // 否则 退出
           console.log('abort!');
@@ -117,16 +118,16 @@ class Main {
     } catch (e) {
       // 不存在当前路径，则创建
       ofs.mkdirSync(destPath());
-      this.showInfo();
+      this.showAppInfo();
     }
   }
 
-  showInfo() {
+  showAppInfo() {
     const { name = appname, ie8 = false, redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
     this.props = { name, ie8, redux, cssm, router, testing };
 
     const s = (v, msg) => v ? `    ${chalk.green('+ ' + msg)}` : `    ${chalk.gray('- ' + msg)}`;
-    const str = `Please confirm your App's info.\n---------------------------------\n  App Name : ${chalk.green(name)} \n  Modules  : \n${s(ie8, 'e  IE8+')} \n${s(redux, 'x  Redux')} \n${s(router, 'r  Router')} \n${s(cssm, 'c  CSS modules')} \n${s(testing, 't  Testing')}\n---------------------------------\n`;
+    const str = `Please confirm your App's info.\n---------------------------------\n  App Name : ${chalk.green(name)} \n  Path : ${chalk.green(destPath())}\n  Modules  : \n${s(ie8, 'e  IE8+')} \n${s(redux, 'x  Redux')} \n${s(router, 'o  Router')} \n${s(cssm, 'c  CSS modules')} \n${s(testing, 't  Testing')}\n---------------------------------\n`;
 
     if (y) {
       this.writing();
@@ -175,6 +176,7 @@ class Main {
       }
     ];
 
+    console.log(this.welcome);
     inquirer.prompt(prompts).then((props) => {
       this.initProps(props);
       // console.log(this.props);
@@ -236,6 +238,14 @@ class Main {
     }
   }
 
+  copyTesting() {
+    if (this.props.testing) {
+      ncp(templatePath('./testing'), destPath(), function (err) {
+        if (err) return console.error(err);
+      });
+    }
+  }
+
   writing() {
     const d = (new Date()).getTime();
     try {
@@ -254,6 +264,8 @@ class Main {
       fs.writeJSON(destPath('.babelrc'), babelrc(this.props), null, '  ');
       // 复制 React 代码文件
       this.copyReactSource();
+
+      this.copyTesting();
 
       fs.commit(() => { });
 
