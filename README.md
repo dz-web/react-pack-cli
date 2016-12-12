@@ -32,7 +32,7 @@ Simple CLI for scaffolding React projects
 
 ```
 
-The document of [webpack.config.js](https://github.com/webpatch/react-pack-cli/blob/master/app.config.md).
+The document of [app.config.js](https://github.com/webpatch/react-pack-cli/blob/master/app.config.md).
 
 
 ## Installation
