@@ -1,6 +1,7 @@
 #React Pack CLI 
 
-Simple CLI for scaffolding React projects
+Simple CLI for scaffolding React projects 
+
 [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url]
 
 ## Features
