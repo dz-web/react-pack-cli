@@ -14,9 +14,9 @@ module.exports = (props) => {
   };
 
   if (props.ie8) {
-    cfg.presets.push(["es2015", { "loose": true }])
+    cfg.presets.unshift(["es2015", { "loose": true }])
   } else {
-    cfg.presets.push(["es2015", { "modules": false }])
+    cfg.presets.unshift(["es2015", { "modules": false }])
   }
 
   if (props.testing) {

@@ -39,7 +39,6 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "babel-preset-react": "^6.11.1",
       "babel-preset-stage-1": "^6.13.0",
       "webpack-dev-server": "^v2.1.0-beta.12",
-      "resolve-url-loader": "^1.6.0",
       "file-loader": "^0.9.0",
       "url-loader": "^0.5.7",
       "style-loader": "^0.13.1",

@@ -54,13 +54,14 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
     module: {
       rules: [
         { test: /\.pug/, loader: 'pug-loader?pretty' },
+        { test: /\.css/, loaders: ['style-loader', 'css-loader'] },
         {
           test: /\.jsx?$/, // 通过正则匹配js,jsx文件
           loaders: ['babel-loader'], // 调用 babel进行es6->es5转换,并且启用react热替换
           exclude: /node_modules/, // 跳过 node_modules 目录
           include: path.resolve(__dirname, '../src'),
         },
-        { test: /\.(jpg|gif|png|svg|ico)$/, loader: 'file?name=images/[name].[ext]' },
+        { test: /\.(jpg|gif|png|svg|ico)$/, loader: 'file-loader?name=images/[name].[ext]' },
       ]
     },
     plugins: createHtmlPlugins(config.html),
@@ -88,7 +89,6 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
             'sass-loader?sourceMap',
           ],
         },
-        { test: /\.css/, loaders: ['style-loader', 'css-loader', 'resolve-url-loader'] },
         {
           test: /\.scss$/,
           include: path.resolve(__dirname, '../src/css/'),
@@ -121,7 +121,7 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
           test: /\.scss$/,
           include: path.resolve(__dirname, '../src/css'),
           loader: extractCSS.extract({
-            loader: ['css-loader', 'resolve-url-loader', 'postcss-loader', 'sass-loader'],
+            loader: ['css-loader', 'postcss-loader', 'sass-loader'],
             publicPath: '../'
           }),
         },
