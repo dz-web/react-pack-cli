@@ -11,7 +11,7 @@ const chalk = require('chalk');
 const spawn = require('cross-spawn');
 const helper = require('./helper');
 const execPath = process.cwd();
-const appname = path.basename(execPath).toLocaleLowerCase().replace(' ', '_');
+// const appname = path.basename(execPath).toLocaleLowerCase().replace(' ', '_');
 
 const pack = require('./template/package.json');
 const babelrc = require('./template/babelrc');
@@ -21,6 +21,7 @@ const fs = editor.create(store);
 
 const templatePath = (p = '') => path.resolve(__dirname, './template', p);
 let destPath = (p = '') => path.resolve(execPath, p);
+const appname = (p = execPath) => path.basename(p).toLocaleLowerCase().replace(' ', '_');
 
 class Main {
 
@@ -28,6 +29,7 @@ class Main {
     this.props = {};
     const u = helper.getGitUser();
     this.user = { userName: u.name || '', email: u.email || '' };
+    this.isNeedCreatePath = false;
     const p = fs.readJSON(path.join(__dirname, 'package.json'));
     this.welcome = `Welcome to use React/Webpack generator v${p.version}`;
 
@@ -92,6 +94,8 @@ class Main {
 
   handlPathCreate() {
     destPath = (p = '') => path.resolve(execPath, this.argv._[0], p);
+    console.log(path.resolve(execPath, this.argv._[0]));
+    this.argv.name = appname(path.resolve(execPath, this.argv._[0]));
     try {
       ofs.accessSync(destPath()); // 是否能访问目的路径
 
@@ -117,19 +121,20 @@ class Main {
       });
     } catch (e) {
       // 不存在当前路径，则创建
-      ofs.mkdirSync(destPath());
+      this.isNeedCreatePath = true;
       this.showAppInfo();
     }
   }
 
   showAppInfo() {
-    const { name = appname, ie8 = false, redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
+    const { name = appname(), ie8 = false, redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
     this.props = { name, ie8, redux, cssm, router, testing };
 
     const s = (v, msg) => v ? `    ${chalk.green('+ ' + msg)}` : `    ${chalk.gray('- ' + msg)}`;
     const str = `Please confirm your App's info.\n---------------------------------\n  App Name : ${chalk.green(name)} \n  Path : ${chalk.green(destPath())}\n  Modules  : \n${s(ie8, 'e  IE8+')} \n${s(redux, 'x  Redux')} \n${s(router, 'o  Router')} \n${s(cssm, 'c  CSS modules')} \n${s(testing, 't  Testing')}\n---------------------------------\n`;
 
     if (y) {
+      if (this.isNeedCreatePath) helper.mkdir(destPath());
       this.writing();
       return;
     }
@@ -140,7 +145,10 @@ class Main {
       message: `${str}Yes / no?`,
       default: true
     }).then((props) => {
-      if (props.isOk) this.writing();
+      if (props.isOk) {
+        if (this.isNeedCreatePath) helper.mkdir(destPath());
+        this.writing();
+      }
     });
   }
 
@@ -150,7 +158,7 @@ class Main {
         type: 'input',
         name: 'name',
         message: 'Project name',
-        default: appname
+        default: appname()
       },
       {
         type: 'confirm',
@@ -284,8 +292,13 @@ class Main {
     if (i) {
       const dest = destPath();
       spawn('yarn', ['install'], { stdio: 'inherit', cwd: dest })
-        .on('error', function (err) { throw err; })
-        .on('close', function () { });
+        .on('close', function (code) {
+          if (code === 0) {
+            console.log('Run npm start script, waiting ...');
+            spawn('npm', ['start'], { stdio: 'inherit', cwd: dest })
+              .on('close', function () { });
+          }
+        });
     }
   }
 

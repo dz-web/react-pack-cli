@@ -67,7 +67,6 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
     devServer: {
       contentBase: path.resolve(__dirname, '../'),
       historyApiFallback: true,
-      noInfo: true,
       host,
       port,
       hot: true,

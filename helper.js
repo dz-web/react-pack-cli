@@ -3,7 +3,7 @@
  */
 const path = require('path');
 const parser = require('iniparser');
-
+const mkdirp = require('mkdirp');
 module.exports = {
 
   getGitUser() {
@@ -16,6 +16,12 @@ module.exports = {
       console.error(err);
     }
     return rs;
+  },
+
+  mkdir(p){
+    mkdirp(p, function (e) {
+      if (e) console.error(e);
+    })
   }
 
 };
