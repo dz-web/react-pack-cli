@@ -1,4 +1,5 @@
-#React Pack CLI [![NPM version][npm-image]][npm-url] 
+#React Pack CLI 
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url]
 
 ## Features
 
@@ -28,7 +29,7 @@
 
 ```
 
-The document of [webpack.config.js](app.config.md).
+The document of [webpack.config.js](https://github.com/webpatch/react-pack-cli/blob/master/app.config.md).
 
 
 ## Installation
@@ -99,3 +100,8 @@ re myapp -exci
 	* karma
 	* mocha
 	* chai
+
+	
+[npm-url]: https://npmjs.org/package/react-pack-cli
+[downloads-image]: http://img.shields.io/npm/dm/react-pack-cli.svg
+[npm-image]: http://img.shields.io/npm/v/react-pack-cli.svg
