@@ -1,4 +1,4 @@
-#React Pack CLI
+#React Pack CLI [![NPM version][npm-image]][npm-url] 
 
 ## Features
 
