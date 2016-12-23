@@ -11,7 +11,7 @@ const chalk = require('chalk');
 const spawn = require('cross-spawn');
 const helper = require('./helper');
 const execPath = process.cwd();
-// const appname = path.basename(execPath).toLocaleLowerCase().replace(' ', '_');
+const yargs = require('yargs');
 
 const pack = require('./template/package.json');
 const babelrc = require('./template/babelrc');
@@ -21,7 +21,37 @@ const fs = editor.create(store);
 
 const templatePath = (p = '') => path.resolve(__dirname, './template', p);
 let destPath = (p = '') => path.resolve(execPath, p);
+
 const appname = (p = execPath) => path.basename(p).toLocaleLowerCase().replace(' ', '_');
+
+const welcome = (() => {
+  const p = fs.readJSON(path.join(__dirname, 'package.json'));
+  return `Welcome to use React/Webpack generator v${p.version}`;
+})();
+
+const copy = (from, to = from) => {
+  fs.copy(templatePath(from), destPath(to));
+};
+
+const copyTpl = (opt, from, to = from) => {
+  fs.copyTpl(templatePath(from), destPath(to), opt);
+};
+
+const appInfo = ({ name, ie8, redux, router, cssm, testing }) => {
+  const s = (value, msg) => value ? chalk.green(`+ ${msg}`) : chalk.gray(`- ${msg}`);
+  return `Please confirm your App's info.
+---------------------------------
+  App Name : ${chalk.green(name)}
+  Path : ${chalk.green(destPath())}
+  Modules  : 
+    ${s(ie8, 'e  IE8+')}
+    ${s(redux, 'x  Redux')}
+    ${s(router, 'o  Router')}
+    ${s(cssm, 'c  CSS modules')}
+    ${s(testing, 't  Testing')}
+---------------------------------
+  Are you sure?`;
+};
 
 class Main {
 
@@ -30,13 +60,17 @@ class Main {
     const u = helper.getGitUser();
     this.user = { userName: u.name || '', email: u.email || '' };
     this.isNeedCreatePath = false;
-    const p = fs.readJSON(path.join(__dirname, 'package.json'));
-    this.welcome = `Welcome to use React/Webpack generator v${p.version}`;
+
+    this.initArgsv();
 
     if (process.argv.length < 3) {
-      this.initUserInput();
+      this.yargs.showHelp();
     } else {
-      this.initArgsv();
+      if (this.argv._.length > 0) {
+        this.handlPathCreate();
+      } else {
+        this.showAppInfo();
+      }
     }
   }
 
@@ -78,24 +112,18 @@ class Main {
       },
     };
 
-    this.argv = require('yargs')
-      .usage(`${this.welcome}\n\nUsage: re|react [path] [options]`)
+    this.yargs = yargs.usage(`${welcome}\n\nUsage: re|react [path] [options]`)
       .options(opt)
       .locale('en')
-      .help('h')
-      .argv;
+      .help('h');
 
-    if (this.argv._.length > 0) {
-      this.handlPathCreate();
-    } else {
-      this.showAppInfo();
-    }
+    this.argv = this.yargs.argv;
   }
 
   handlPathCreate() {
     destPath = (p = '') => path.resolve(execPath, this.argv._[0], p);
-    console.log(path.resolve(execPath, this.argv._[0]));
-    this.argv.name = appname(path.resolve(execPath, this.argv._[0]));
+    this.argv.name = this.argv.name || appname(path.resolve(execPath, this.argv._[0]));
+
     try {
       ofs.accessSync(destPath()); // 是否能访问目的路径
 
@@ -116,7 +144,7 @@ class Main {
         } else {
           // 否则 退出
           console.log('abort!');
-          process.exit(0);
+          process.exit(1);
         }
       });
     } catch (e) {
@@ -130,8 +158,10 @@ class Main {
     const { name = appname(), ie8 = false, redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
     this.props = { name, ie8, redux, cssm, router, testing };
 
-    const s = (v, msg) => v ? `    ${chalk.green('+ ' + msg)}` : `    ${chalk.gray('- ' + msg)}`;
-    const str = `Please confirm your App's info.\n---------------------------------\n  App Name : ${chalk.green(name)} \n  Path : ${chalk.green(destPath())}\n  Modules  : \n${s(ie8, 'e  IE8+')} \n${s(redux, 'x  Redux')} \n${s(router, 'o  Router')} \n${s(cssm, 'c  CSS modules')} \n${s(testing, 't  Testing')}\n---------------------------------\n`;
+    if (typeof name !== 'string') {
+      console.log(`"${name}" isn't a valid project name.`);
+      process.exit(1);
+    }
 
     if (y) {
       if (this.isNeedCreatePath) helper.mkdir(destPath());
@@ -139,10 +169,11 @@ class Main {
       return;
     }
 
+    // show app info
     inquirer.prompt({
       type: 'confirm',
       name: 'isOk',
-      message: `${str}Yes / no?`,
+      message: appInfo(this.props),
       default: true
     }).then((props) => {
       if (props.isOk) {
@@ -150,99 +181,45 @@ class Main {
         this.writing();
       }
     });
-  }
 
-  initUserInput() {
-    const prompts = [
-      {
-        type: 'input',
-        name: 'name',
-        message: 'Project name',
-        default: appname()
-      },
-      {
-        type: 'confirm',
-        name: 'ie8',
-        message: 'Support IE8+ browser?',
-        default: false
-      },
-      {
-        type: 'checkbox',
-        name: 'tools',
-        message: 'Choose other librarys',
-        choices: [
-          { name: 'Redux', value: 'redux' },
-          { name: 'React router', value: 'router' },
-          { name: 'CSS modules', value: 'cssm' },
-        ]
-      },
-      {
-        type: 'confirm',
-        name: 'testing',
-        message: 'Is need unit testing ?',
-        default: false
-      }
-    ];
-
-    console.log(this.welcome);
-    inquirer.prompt(prompts).then((props) => {
-      this.initProps(props);
-      // console.log(this.props);
-      this.writing();
-    });
-  }
-
-  initProps(p) {
-    const redux = p.tools.includes('redux');
-    const cssm = p.tools.includes('cssm');
-    const router = p.tools.includes('router');
-    this.props = Object.assign({}, p, { redux, cssm, router });
-  }
-
-  copy(a, b = a) {
-    fs.copy(templatePath(a), destPath(b));
-  }
-
-  copyTpl(o, a, b = a) {
-    fs.copyTpl(templatePath(a), destPath(b), o);
   }
 
   copyReactSource() {
-    this.copy('src/css');
+    copy('src/css');
     const { cssm, redux, router } = this.props;
 
     if (redux) {
-      this.copy('src/model/action.js');
-      this.copy('src/model/action-types.js');
-      this.copyTpl(this.props, 'src/model/reducer.js.ejs', 'src/model/reducer.js');
+      copy('src/model/action.js');
+      copy('src/model/action-types.js');
+      copyTpl(this.props, 'src/model/reducer.js.ejs', 'src/model/reducer.js');
     }
 
-    this.copyTpl(this.props, 'src/views/about.jsx.ejs', 'src/views/about.jsx');
-    this.copyTpl(this.props, 'src/views/user.jsx.ejs', 'src/views/user.jsx');
+    copyTpl(this.props, 'src/views/about.jsx.ejs', 'src/views/about.jsx');
+    copyTpl(this.props, 'src/views/user.jsx.ejs', 'src/views/user.jsx');
 
     if (cssm) {
-      this.copy('src/views/about.scss');
-      this.copy('src/views/user.scss');
+      copy('src/views/about.scss');
+      copy('src/views/user.scss');
     }
 
     if (router && redux) {
-      this.copy('src/app-router-redux.jsx', 'src/app.jsx');
-      this.copyTpl(this.props, 'src/wrap-router-redux.jsx.ejs', 'src/wrap.jsx');
+      copy('src/app-router-redux.jsx', 'src/app.jsx');
+      copyTpl(this.props, 'src/wrap-router-redux.jsx.ejs', 'src/wrap.jsx');
     } else if (router) {
-      this.copy('src/app-router.jsx', 'src/app.jsx');
-      this.copy('src/wrap-router.jsx', 'src/wrap.jsx');
+      copy('src/app-router.jsx', 'src/app.jsx');
+      copy('src/wrap-router.jsx', 'src/wrap.jsx');
     } else if (redux) {
-      this.copy('src/app-redux.jsx', 'src/app.jsx');
-      this.copy('src/wrap-redux.jsx', 'src/wrap.jsx');
+      copy('src/app-redux.jsx', 'src/app.jsx');
+      copy('src/wrap-redux.jsx', 'src/wrap.jsx');
     } else {
-      this.copy('src/app.jsx');
+      copy('src/app.jsx');
     }
 
-    // this.copy index.jsx
+    // copy index.jsx
     if (redux || router) {
-      this.copy('src/index-wrap.jsx', 'src/index.jsx');
+      copy('src/index-wrap.jsx', 'src/index.jsx');
     } else {
-      this.copy('src/index.jsx');
+      copy('src/index.jsx');
     }
   }
 
@@ -255,7 +232,8 @@ class Main {
   }
 
   writing() {
-    const d = (new Date()).getTime();
+    const startTime = (new Date()).getTime();
+
     try {
       // 复制静态文件
       ncp(templatePath('./asset'), destPath(), function (err) {
@@ -265,9 +243,9 @@ class Main {
       // 写入 package.json
       fs.write(destPath('package.json'), pack.getPackageJSON(Object.assign({}, this.props, this.user)));
       // 写入 gitignore
-      this.copy('_.gitignore', '.gitignore');
+      copy('_.gitignore', '.gitignore');
       // console.log(this.props);
-      this.copyTpl(this.props, 'webpack.config.js.ejs', 'dev/webpack.config.js');
+      copyTpl(this.props, 'webpack.config.js.ejs', 'dev/webpack.config.js');
       // 写入 babelrc
       fs.writeJSON(destPath('.babelrc'), babelrc(this.props), null, '  ');
       // 复制 React 代码文件
@@ -277,8 +255,8 @@ class Main {
 
       fs.commit(() => { });
 
-      console.log(chalk.green('success ') + 'All files created!');
-      console.log(`Done in ${(new Date()).getTime() - d} ms.`);
+      console.log(`${chalk.green('success')} All files created!`);
+      console.log(`Done in ${(new Date()).getTime() - startTime} ms.`);
 
       this.install();
 
@@ -291,12 +269,13 @@ class Main {
     const { i = false } = this.argv;
     if (i) {
       const dest = destPath();
+      // yarn install
       spawn('yarn', ['install'], { stdio: 'inherit', cwd: dest })
         .on('close', function (code) {
+          // npm run start
           if (code === 0) {
             console.log('Run npm start script, waiting ...');
             spawn('npm', ['start'], { stdio: 'inherit', cwd: dest })
-              .on('close', function () { });
           }
         });
     }
