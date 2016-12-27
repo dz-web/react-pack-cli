@@ -111,7 +111,7 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
           exclude: path.resolve(__dirname, '../src/css'),
           loader: extractCSS.extract({
             loader: [
-              'css-loader?modules&&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
+              'css-loader?minimize&modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
               'postcss-loader',
               'sass-loader',
             ], publicPath: '../'
@@ -121,7 +121,7 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
           test: /\.scss$/,
           include: path.resolve(__dirname, '../src/css'),
           loader: extractCSS.extract({
-            loader: ['css-loader', 'postcss-loader', 'sass-loader'],
+            loader: ['css-loader?minimize', 'postcss-loader', 'sass-loader'],
             publicPath: '../'
           }),
         },
