@@ -38,7 +38,7 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "babel-preset-es2015": "^6.14.0",
       "babel-preset-react": "^6.11.1",
       "babel-preset-stage-1": "^6.13.0",
-      "webpack-dev-server": "^v2.1.0-beta.12",
+      "webpack-dev-server": "^v2.2.0-rc.0",
       "file-loader": "^0.9.0",
       "url-loader": "^0.5.7",
       "style-loader": "^0.13.1",
@@ -48,7 +48,7 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "postcss-loader": "^1.2.0",
       "precss": "^1.4.0",
       "html-webpack-plugin": "^2.16.0",
-      "extract-text-webpack-plugin": "^v2.0.0-beta.4",
+      "extract-text-webpack-plugin": "^v2.0.0-beta.5",
       "eslint": "^3.4.0",
       "eslint-config-airbnb": "^10.0.1",
       "eslint-plugin-import": "^1.14.0",
@@ -112,7 +112,7 @@ const Redux = {
 };
 
 const Webpack = (isIE8) => {
-  const o = isIE8 ? { "webpack": "https://github.com/webpatch/webpack" } : { "webpack": "^2.1.0-beta.25", };
+  const o = isIE8 ? { "webpack": "https://github.com/webpatch/webpack" } : { "webpack": "^v2.2.0-rc.6", };
   return { "devDependencies": o }
 };
 

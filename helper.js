@@ -19,9 +19,7 @@ module.exports = {
   },
 
   mkdir(p){
-    mkdirp(p, function (e) {
-      if (e) console.error(e);
-    })
+    mkdirp(p, e => { e && console.error(e); })
   }
 
 };

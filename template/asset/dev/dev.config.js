@@ -5,8 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const config = require('../app.config');
+const server = require('../server');
 
-const { port, host } = config.server;
+const { port, host } = server;
 
 const extractCSS = new ExtractTextPlugin({ filename: 'css/[name].css', allChunks: true });
 
@@ -75,7 +76,8 @@ module.exports = function ({ isRouter, isIE8, isPrd }) {
   };
 
   const devConfig = {
-    devtool: 'source-map',
+    // devtool: 'source-map',
+    devtool: 'eval',
     entry: createDevModeEntry(config.entry),
     module: {
       rules: commonConfig.module.rules.concat([
