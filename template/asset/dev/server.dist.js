@@ -1,21 +1,18 @@
 const chalk = require('chalk');
-const express = require('express');
-const rewriteModule = require('http-rewrite-middleware');
-const app = express();
-
-const webpackConfig = require('./webpack.config.js');
+const webpackConfig = require('./webpack.dist');
+const server = require('pushstate-server');
 const config = require('../app.config');
-const server  = require('../server');
-let { port, host } = server;
+const openBrowser = require('react-dev-utils/openBrowser');
+
+let { port, host } = config.server;
 port += 1;
 
-app.use(rewriteModule.getMiddleware([
-  { from: '(.*)\\.(.*)', to: '$1.$2' },
-  { from: '.*', to: '/' },
-], { silent: false }));
-
-app.use(express.static(webpackConfig.output.path));
-
-app.listen(port, host, function () {
-  console.log(chalk.green(`Dist server listening on http://${host}:${port} ...`))
+server.start({
+  port: port,
+  directory: webpackConfig.output.path,
 });
+
+const url = `http://${host}:${port}`;
+// openBrowser(url);
+
+console.log(chalk.green(`Dist server listening on ${url} ...`));

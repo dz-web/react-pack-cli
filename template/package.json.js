@@ -19,9 +19,9 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "precheck": "npm run eslint",
       "eslint": "cross-env NODE_ENV=test eslint --cache --ext .jsx,.js src/",
       "csslint": "stylelint src/**/*.scss --syntax scss",
-      "start": "webpack-dev-server --config ./dev/webpack.config.js",
+      "start": "node ./dev/server.dev.js",
       "dstart": "cross-env NODE_ENV=production node ./dev/server.dist.js",
-      "dist": "rimraf dist/ && cross-env NODE_ENV=production webpack --config ./dev/webpack.config.js && npm run dstart",
+      "dist": "rimraf dist/ && cross-env NODE_ENV=production webpack --config ./dev/webpack.dist.js && npm run dstart"
     },
     "dependencies": {
       "babel-polyfill": "^6.13.0",
@@ -38,7 +38,7 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "babel-preset-es2015": "^6.14.0",
       "babel-preset-react": "^6.11.1",
       "babel-preset-stage-1": "^6.13.0",
-      "webpack-dev-server": "^v2.2.0-rc.0",
+      "webpack-dev-server": "^v2.3.0",
       "file-loader": "^0.9.0",
       "url-loader": "^0.5.7",
       "style-loader": "^0.13.1",
@@ -61,10 +61,12 @@ const defaultPackage = ({ name, userName = '', email = '' }) => (
       "pug-loader": "^2.3.0",
       "copy-webpack-plugin": "^4.0.1",
       // dist 服务器
-      "http-rewrite-middleware": "^0.1.6",
-      "express": "^4.14.0",
+      "pushstate-server": "^3.0.0",
       "rimraf": "^2.5.4",
       "chalk": "^1.1.3",
+      "ip": "^1.1.4",
+      "html-asset-webpack-plugin": "^1.0.0",
+      "react-dev-utils": "^0.5.0",
     },
     "repository": "",
     "license": "MIT"
@@ -112,7 +114,7 @@ const Redux = {
 };
 
 const Webpack = (isIE8) => {
-  const o = isIE8 ? { "webpack": "https://github.com/webpatch/webpack" } : { "webpack": "^v2.2.0-rc.6", };
+  const o = isIE8 ? { "webpack": "https://github.com/webpatch/webpack" } : { "webpack": "^v2.2.1", };
   return { "devDependencies": o }
 };
 

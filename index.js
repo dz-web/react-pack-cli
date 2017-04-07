@@ -92,10 +92,6 @@ class Main {
         alias: 'cssm',
         describe: 'Use react css moudules',
       },
-      'n': {
-        alias: 'name',
-        describe: 'Project name',
-      },
       't': {
         alias: 'testing',
         describe: 'Is need testing',
@@ -106,9 +102,6 @@ class Main {
       'i': {
         alias: 'install',
         describe: 'Install all dependencies',
-      },
-      'v': {
-        describe: 'Show verbose log',
       },
     };
 
@@ -244,8 +237,6 @@ class Main {
       fs.write(destPath('package.json'), pack.getPackageJSON(Object.assign({}, this.props, this.user)));
       // 写入 gitignore
       copy('_.gitignore', '.gitignore');
-      // console.log(this.props);
-      copyTpl(this.props, 'webpack.config.js.ejs', 'dev/webpack.config.js');
       // 写入 babelrc
       fs.writeJSON(destPath('.babelrc'), babelrc(this.props), null, '  ');
       // 复制 React 代码文件
