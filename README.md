@@ -10,8 +10,7 @@ Simple CLI for scaffolding React projects
 * ES7 support
 * Hot reload
 * Testing support
-* IE8+ support (use React v0.14.8)
-* Free combination modules (ie8/redux/router/cssMoudules)
+* Free combination modules (redux/router/cssMoudules)
 
 
 ## Files struct
@@ -32,9 +31,6 @@ Simple CLI for scaffolding React projects
 
 ```
 
-The document of [app.config.js](https://github.com/webpatch/react-pack-cli/blob/master/app.config.md).
-
-
 ## Installation
 
 Install react-pack-cli using [npm](https://www.npmjs.com/) (assume you have pre-installed [node.js](https://nodejs.org/)).
@@ -53,7 +49,6 @@ help info:
 Usage: re|react [path] [options]
 
 Options:
-  -e, --ie8      Support IE8+ browser
   -x, --redux    Use redux
   -o, --router   Use react-router
   -c, --cssm     Use react css moudules
@@ -69,10 +64,10 @@ The `react` command have a alias `re`.
 ### Example
 
 ```
-re myapp -exci 
+re myapp -xci 
 ```
 1. Create a react app under **myapp** directory.
-2. It have to support `ie8` and use `redux` , `css moudules` libraries. 
+2. It's use `redux` , `css moudules` libraries. 
 3. When it done, install all dependencies with `yarn install` command and follow with a `npm start` command. 
 
 ## Packages include

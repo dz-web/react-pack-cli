@@ -1,0 +1,21 @@
+{
+  "extends": "stylelint-config-standard",
+  "plugins": [
+    "stylelint-scss",
+    "stylelint-declaration-use-variable"
+  ],
+  "rules": {
+    "sh-waqar/declaration-use-variable": [[
+      "color",
+      "background-color"
+    ]],
+    "scss/dollar-variable-pattern": "^(([a-z]+)-*)+$",
+    "selector-no-id": true,
+    "max-nesting-depth": 1,
+    "at-rule-blacklist": [
+      "extend"
+    ],
+    "selector-no-universal": true,
+    "number-leading-zero": "never"
+  }
+}

@@ -4,7 +4,6 @@ const path = require('path');
 const memFs = require('mem-fs');
 const editor = require('mem-fs-editor');
 const inquirer = require('inquirer');
-const ncp = require('ncp').ncp;
 const ofs = require('fs');
 const os = require('os');
 const chalk = require('chalk');
@@ -12,6 +11,7 @@ const spawn = require('cross-spawn');
 const helper = require('./helper');
 const execPath = process.cwd();
 const yargs = require('yargs');
+const fss = require('fs-extra');
 
 const pack = require('./template/package.json');
 const babelrc = require('./template/babelrc');
@@ -37,14 +37,13 @@ const copyTpl = (opt, from, to = from) => {
   fs.copyTpl(templatePath(from), destPath(to), opt);
 };
 
-const appInfo = ({ name, ie8, redux, router, cssm, testing }) => {
+const appInfo = ({ name, redux, router, cssm, testing }) => {
   const s = (value, msg) => value ? chalk.green(`+ ${msg}`) : chalk.gray(`- ${msg}`);
   return `Please confirm your App's info.
 ---------------------------------
   App Name : ${chalk.green(name)}
   Path : ${chalk.green(destPath())}
   Modules  : 
-    ${s(ie8, 'e  IE8+')}
     ${s(redux, 'x  Redux')}
     ${s(router, 'o  Router')}
     ${s(cssm, 'c  CSS modules')}
@@ -76,10 +75,6 @@ class Main {
 
   initArgsv() {
     const opt = {
-      'e': {
-        alias: 'ie8',
-        describe: 'Support IE8+ browser',
-      },
       'x': {
         alias: 'redux',
         describe: 'Use redux',
@@ -148,8 +143,8 @@ class Main {
   }
 
   showAppInfo() {
-    const { name = appname(), ie8 = false, redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
-    this.props = { name, ie8, redux, cssm, router, testing };
+    const { name = appname(), redux = false, router = false, cssm = false, testing = false, y = false } = this.argv;
+    this.props = { name, redux, cssm, router, testing };
 
     if (typeof name !== 'string') {
       console.log(`"${name}" isn't a valid project name.`);
@@ -197,7 +192,7 @@ class Main {
 
     if (router && redux) {
       copy('src/app-router-redux.jsx', 'src/app.jsx');
-      copyTpl(this.props, 'src/wrap-router-redux.jsx.ejs', 'src/wrap.jsx');
+      copy('src/wrap-router-redux.jsx', 'src/wrap.jsx');
     } else if (router) {
       copy('src/app-router.jsx', 'src/app.jsx');
       copy('src/wrap-router.jsx', 'src/wrap.jsx');
@@ -218,7 +213,10 @@ class Main {
 
   copyTesting() {
     if (this.props.testing) {
-      ncp(templatePath('./testing'), destPath(), function (err) {
+      fss.copy(templatePath('./testing/dev'), destPath('dev'), (err) => {
+        if (err) return console.error(err);
+      });
+      fss.copy(templatePath('./testing/test'), destPath('test'), (err) => {
         if (err) return console.error(err);
       });
     }
@@ -229,14 +227,14 @@ class Main {
 
     try {
       // 复制静态文件
-      ncp(templatePath('./asset'), destPath(), function (err) {
+      fss.copy(templatePath('./asset'), destPath(), (err) => {
         if (err) return console.error(err);
       });
 
       // 写入 package.json
       fs.write(destPath('package.json'), pack.getPackageJSON(Object.assign({}, this.props, this.user)));
-      // 写入 gitignore
       copy('_.gitignore', '.gitignore');
+      copy('_.stylelintrc', '.stylelintrc');
       // 写入 babelrc
       fs.writeJSON(destPath('.babelrc'), babelrc(this.props), null, '  ');
       // 复制 React 代码文件
