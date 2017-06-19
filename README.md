@@ -1,105 +1,103 @@
-#React Pack CLI 
+# react-pack-cli
 
-Simple CLI for scaffolding React projects 
+A simple CLI for scaffolding React projects.
 
-[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url]
+### Installation
 
-## Features
+Prerequisites: [Node.js](https://nodejs.org/en/) (>=6.x) , npm version 3+ and [Git](https://git-scm.com/).
 
-* React full packs
-* ES7 support
-* Hot reload
-* Testing support
-* Free combination modules (redux/router/cssMoudules)
-
-
-## Files struct
-```
-|-- dev
-|   |-- template
-|   |   |-- index.pug				The pug template of the index.html.
-|   |-- bage.js						Create coverage bage svg file.
-|   |-- dev.config.js				Webpack config file.
-|   |-- server.dist.js				Distribution server file.
-|   `-- webpack.config.js
-|-- src								React source code files.
-|-- static							Static files.
-|   `-- polyfill.min.js				Babel js polyfill.
-|-- app.config.js					App config file.
-|-- package.json					NPM package file.
-`-- postcss.config.js				Postcss config file.
-
+``` bash
+$ npm install -g react-pack-cli
 ```
 
-## Installation
+### Usage
 
-Install react-pack-cli using [npm](https://www.npmjs.com/) (assume you have pre-installed [node.js](https://nodejs.org/)).
-
-```bash
-npm install -g react-pack-cli
+``` bash
+$ re init <template-name> <project-name>
 ```
 
-## Usage
+Example:
 
+``` bash
+$ re init react my-project
 ```
-react -h   # show react-pack-cli help 
-```
-help info:
-```
-Usage: re|react [path] [options]
+### Custom Templates
 
-Options:
-  -x, --redux    Use redux
-  -o, --router   Use react-router
-  -c, --cssm     Use react css moudules
-  -n, --name     Project name
-  -t, --testing  Is need testing
-  -y             Force to confirm
-  -i, --install  Install all dependencies
-  -v             Show verbose log
+It's unlikely to make everyone happy with the official templates. You can simply fork an official template and then use it via `vue-cli` with:
+
+``` bash
+re init username/repo my-project
 ```
 
-The `react` command have a alias `re`.
+Where `username/repo` is the GitHub repo shorthand for your fork.
 
-### Example
+The shorthand repo notation is passed to [download-git-repo](https://github.com/flipxfx/download-git-repo) so you can also use things like `bitbucket:username/repo` for a Bitbucket repo and `username/repo#branch` for tags or branches.
 
+If you would like to download from a private repository use the `--clone` flag and the cli will use `git clone` so your SSH keys are used.
+
+### Local Templates
+
+Instead of a GitHub repo, you can also use a template on your local file system:
+
+``` bash
+re init ~/fs/path/to-custom-template my-project
 ```
-re myapp -xci 
+
+### Writing Custom Templates from Scratch
+
+- A template repo **must** have a `template` directory that holds the template files.
+
+- A template repo **may** have a metadata file for the template which can be either a `meta.js` or `meta.json` file. It can contain the following fields:
+
+  - `prompts`: used to collect user options data;
+
+  - `filters`: used to conditional filter files to render.
+  
+  - `ignore`: used to ignore files to render.
+
+  - `completeMessage`: the message to be displayed to the user when the template has been generated. You can include custom instruction here.
+
+#### prompts
+
+The `prompts` field in the metadata file should be an object hash containing prompts for the user. For each entry, the key is the variable name and the value is an [Inquirer.js question object](https://github.com/SBoudrias/Inquirer.js/#question). Example:
+
+``` json
+{
+  "prompts": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "message": "Project name"
+    }
+  }
+}
 ```
-1. Create a react app under **myapp** directory.
-2. It's use `redux` , `css moudules` libraries. 
-3. When it done, install all dependencies with `yarn install` command and follow with a `npm start` command. 
 
-## Packages include
+After all prompts are finished, all files inside `template` will be rendered using [ejs](https://github.com/mde/ejs), with the prompt results as the data.
 
-* base
-	* webpack
-	* babel
+##### Conditional Prompts
 
-* react
-	* react
-	* react-router
-	* react-hot-loader
-	* react-css-modules
-	* redux
-	* react-redux
-	* react-redux-router
+A prompt can be made conditional by adding a `when` field, which should be a JavaScript expression evaluated with data collected from previous prompts. For example:
 
-* css
-	* sass
-	* postcss
-	* autoprefixer
+``` json
+{
+  "prompts": {
+    "lint": {
+      "type": "confirm",
+      "message": "Use a linter?"
+    },
+    "lintConfig": {
+      "when": "lint",
+      "type": "list",
+      "message": "Pick a lint config",
+      "choices": [
+        "standard",
+        "airbnb",
+        "none"
+      ]
+    }
+  }
+}
+```
 
-* lint
-	* eslint
-    * stylelint
-
-* testing
-	* karma
-	* mocha
-	* chai
-
-	
-[npm-url]: https://npmjs.org/package/react-pack-cli
-[downloads-image]: http://img.shields.io/npm/dm/react-pack-cli.svg
-[npm-image]: http://img.shields.io/npm/v/react-pack-cli.svg
+The prompt for `lintConfig` will only be triggered when the user answered yes to the `lint` prompt.
