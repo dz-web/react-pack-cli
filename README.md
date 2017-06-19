@@ -47,7 +47,7 @@ re init ~/fs/path/to-custom-template my-project
 
 - A template repo **must** have a `template` directory that holds the template files.
 
-- A template repo **may** have a metadata file for the template which can be either a `meta.js` or `meta.json` file. It can contain the following fields:
+- A template repo **may** have a `bootstrap.js` file for the template. It can contain the following fields:
 
   - `prompts`: used to collect user options data;
 
