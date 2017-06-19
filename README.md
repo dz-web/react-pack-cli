@@ -23,7 +23,7 @@ $ re init react my-project
 ```
 ### Custom Templates
 
-It's unlikely to make everyone happy with the official templates. You can simply fork an official template and then use it via `vue-cli` with:
+It's unlikely to make everyone happy with the official templates. You can simply fork an official template and then use it via `react-pack-cli` with:
 
 ``` bash
 re init username/repo my-project
