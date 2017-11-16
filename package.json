@@ -1,7 +1,7 @@
 {
   "name": "react-pack-cli",
   "repository": "webpatch/react-pack-cli",
-  "version": "3.0.0",
+  "version": "4.0.1",
   "description": "Simple CLI for scaffolding React projects",
   "main": "index.js",
   "scripts": {
